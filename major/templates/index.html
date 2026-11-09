@@ -1,0 +1,80 @@
+ {% extends 'base.html' %}
+{% block content %}
+
+<div style="margin-bottom: 20px;">
+    <form action="/" method="GET" style="display: flex; gap: 10px;">
+        <input type="text" name="q" placeholder="Search products..." value="{{ search }}" style="flex: 1; padding: 10px;">
+        <button type="submit" class="btn">Search</button>
+    </form>
+</div>
+
+{% if not search and segment_recs %}
+    <h2 style="margin-bottom: 15px; color: #1a237e;">Trending in {{ segment }}</h2>
+    <div class="grid" style="margin-bottom: 40px;">
+        {% for p in segment_recs %}
+        <div class="card" style="text-align: center; border-top: 4px solid #4CAF50;">
+            <img src="{{ p.image_url }}" class="product-img" style="width:100%; height:200px; object-fit:cover;">
+            <h3>{{ p.name }}</h3>
+            <span style="color: gray; font-size: 14px;">Purchased by peers</span>
+            <p style="color: #d32f2f; font-weight: bold; margin: 10px 0;">Only {{ p.stock }} left in stock!</p>
+            <h2 style="margin: 15px 0;">Rs. {{ "%.2f"|format(p.selling_price) }}</h2>
+            
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <a href="/view/{{ p.product_id }}" class="btn" style="background-color: #ff9800; padding: 10px;">Add to Cart</a>
+                <form action="/direct_checkout/{{ p.product_id }}" method="POST" style="margin: 0;">
+                    <button type="submit" class="btn" style="background-color: #4CAF50; padding: 10px;">Buy Now</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if history_recs %}
+    <h2 style="margin-bottom: 15px; color: #1a237e;">
+        {% if search %}Search Results{% else %}Because You Viewed Similar Items{% endif %}
+    </h2>
+    <div class="grid" style="margin-bottom: 40px;">
+        {% for p in history_recs %}
+        <div class="card" style="text-align: center; border-top: 4px solid #ffab00;">
+            <img src="{{ p.image_url }}" class="product-img" style="width:100%; height:200px; object-fit:cover;">
+            <h3>{{ p.name }}</h3>
+            <span style="color: gray; font-size: 14px;">{{ p.domain_category }}</span>
+            <p style="color: #d32f2f; font-weight: bold; margin: 10px 0;">Only {{ p.stock }} left in stock!</p>
+            <h2 style="margin: 15px 0;">Rs. {{ "%.2f"|format(p.selling_price) }}</h2>
+            
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <a href="/view/{{ p.product_id }}" class="btn" style="background-color: #ff9800; padding: 10px;">Add to Cart</a>
+                <form action="/direct_checkout/{{ p.product_id }}" method="POST" style="margin: 0;">
+                    <button type="submit" class="btn" style="background-color: #4CAF50; padding: 10px;">Buy Now</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if products %}
+    <h2 style="margin-bottom: 15px;">All Products</h2>
+    <div class="grid">
+        {% for p in products %}
+        <div class="card" style="text-align: center;">
+            <img src="{{ p.image_url }}" class="product-img" style="width:100%; height:200px; object-fit:cover;">
+            <h3>{{ p.name }}</h3>
+            <span style="color: gray; font-size: 14px;">{{ p.domain_category }}</span>
+            <p style="color: #d32f2f; font-weight: bold; margin: 10px 0;">Only {{ p.stock }} left in stock!</p>
+            <h2 style="margin: 15px 0;">Rs. {{ "%.2f"|format(p.selling_price) }}</h2>
+            
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <a href="/view/{{ p.product_id }}" class="btn" style="background-color: #ff9800; padding: 10px;">Add to Cart</a>
+                <form action="/direct_checkout/{{ p.product_id }}" method="POST" style="margin: 0;">
+                    <button type="submit" class="btn" style="background-color: #4CAF50; padding: 10px;">Buy Now</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% endblock %}
+ 

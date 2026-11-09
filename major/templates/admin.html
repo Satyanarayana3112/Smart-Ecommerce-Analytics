@@ -1,0 +1,223 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | SmartEcommerceAnalytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .logout-btn { background-color: #dc3545; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+        
+        /* Stats Cards */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; }
+        .stat-card h3 { margin: 0; color: #6c757d; font-size: 16px; text-transform: uppercase; }
+        .stat-card .value { font-size: 32px; font-weight: bold; color: #28a745; margin-top: 10px; }
+        .stat-card .value.profit { color: #007bff; }
+
+        /* General Card Layout */
+        .card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .card h3 { margin-top: 0; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; color: #495057; }
+        
+        /* Charts Grid */
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .chart-container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e9ecef; }
+        th { background-color: #f8f9fa; font-weight: 600; color: #495057; }
+        .badge { background: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        
+        /* Forms */
+        .inline-form { display: flex; gap: 10px; align-items: center; }
+        .inline-form input { padding: 10px; border: 1px solid #ced4da; border-radius: 4px; }
+        .inline-form button { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2>Admin Master Dashboard</h2>
+        <a href="/logout" class="logout-btn">Log Out</a>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Platform Revenue</h3>
+            <div class="value">Rs. {{ revenue | round(2) }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Total Platform Profit</h3>
+            <div class="value profit">Rs. {{ profit | round(2) }}</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-container">
+            <h3 style="text-align: center; color: #495057;">Top Products by Volume</h3>
+            <canvas id="volumeChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h3 style="text-align: center; color: #495057;">Top Products by Profit (Rs.)</h3>
+            <canvas id="profitChart"></canvas>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-container">
+            <h3 style="text-align: center; color: #495057;">Platform Demographics</h3>
+            <canvas id="roleChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h3 style="text-align: center; color: #495057;">AI Customer Segmentation</h3>
+            <canvas id="segmentChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>User Management & AI Segmentation</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Role</th>
+                    <th>AI Status (Customers)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u['user_id'] }}</td>
+                    <td><strong>{{ u['username'] }}</strong></td>
+                    <td style="color: #dc3545; font-family: monospace;">{{ u['password'] }}</td>
+                    <td>{{ u['role'] | capitalize }}</td>
+                    <td>
+                        {% if u['role'] == 'customer' %}
+                            <span class="badge">{{ u['ai_status'] }}</span>
+                        {% else %}
+                            <span style="color: #adb5bd;">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Register New Vendor</h3>
+        <form action="/admin/add_vendor" method="POST" class="inline-form">
+            <input type="text" name="username" placeholder="Vendor Username" required>
+            <input type="text" name="password" placeholder="Vendor Password" required>
+            <button type="submit">Create Vendor Account</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Global Sales History (All Bills)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Bill ID</th>
+                    <th>Customer Name</th>
+                    <th>Total Amount (Rs.)</th>
+                    <th>Date & Time (IST)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in orders %}
+                <tr>
+                    <td><strong>#{{ o['order_id'] }}</strong></td>
+                    <td>{{ o['customer_name'] }}</td>
+                    <td>Rs. {{ o['total_amount'] | round(2) }}</td>
+                    <td>{{ o['created_at'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Existing Data for Products
+    const labels = {{ labels | tojson }};
+    const salesData = {{ sales | tojson }};
+    const profitData = {{ profits | tojson }};
+
+    new Chart(document.getElementById('volumeChart'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Units Sold',
+                data: salesData,
+                backgroundColor: 'rgba(40, 167, 69, 0.6)',
+                borderColor: 'rgba(40, 167, 69, 1)',
+                borderWidth: 1
+            }]
+        }
+    });
+
+    new Chart(document.getElementById('profitChart'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Profit Generated (Rs.)',
+                data: profitData,
+                backgroundColor: 'rgba(0, 123, 255, 0.6)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                borderWidth: 1
+            }]
+        }
+    });
+
+    // New Data Processing for Users
+    const rawUsers = {{ users | tojson }};
+    
+    let roleCounts = { 'admin': 0, 'vendor': 0, 'customer': 0 };
+    rawUsers.forEach(user => {
+        if (roleCounts[user.role] !== undefined) {
+            roleCounts[user.role]++;
+        }
+    });
+
+    new Chart(document.getElementById('roleChart'), {
+        type: 'pie',
+        data: {
+            labels: ['Admins', 'Vendors', 'Customers'],
+            datasets: [{
+                data: [roleCounts['admin'], roleCounts['vendor'], roleCounts['customer']],
+                backgroundColor: ['#dc3545', '#ffc107', '#17a2b8']
+            }]
+        }
+    });
+
+    let segmentCounts = {};
+    rawUsers.forEach(user => {
+        if (user.role === 'customer' && user.ai_status !== 'N/A') {
+            segmentCounts[user.ai_status] = (segmentCounts[user.ai_status] || 0) + 1;
+        }
+    });
+
+    new Chart(document.getElementById('segmentChart'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(segmentCounts),
+            datasets: [{
+                data: Object.values(segmentCounts),
+                backgroundColor: ['#6f42c1', '#e83e8c', '#20c997', '#fd7e14']
+            }]
+        }
+    });
+</script>
+
+</body>
+</html>
+ 

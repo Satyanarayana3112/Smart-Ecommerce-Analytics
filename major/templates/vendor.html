@@ -1,0 +1,145 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vendor Dashboard | SmartEcommerceAnalytics</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .logout-btn { background-color: #dc3545; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+        
+        .card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .card h3 { margin-top: 0; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; color: #495057; }
+        
+        /* Form Grid Layout */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #6c757d; }
+        .form-group input, .form-group select { padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; }
+        .submit-btn { background-color: #28a745; color: white; border: none; padding: 12px 20px; font-size: 15px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 10px; width: 100%; }
+        
+        /* Table Layout */
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e9ecef; }
+        th { background-color: #f8f9fa; font-weight: 600; color: #495057; }
+        
+        .img-preview { width: 55px; height: 55px; object-fit: cover; border-radius: 6px; border: 1px solid #dee2e6; }
+        .inline-input { width: 80px; padding: 6px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; }
+        .update-btn { background-color: #fd7e14; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .update-btn:hover { background-color: #e67e22; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2>Vendor Portal: Welcome, {{ session['username'] }}</h2>
+        <a href="/logout" class="logout-btn">Log Out</a>
+    </header>
+
+    <div class="card">
+        <h3>Add New Product to Inventory</h3>
+        <form action="/vendor" method="POST" enctype="multipart/form-data">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Wireless Mouse">
+                </div>
+                <div class="form-group">
+                    <label>Domain Category</label>
+                    <input type="text" name="domain_category" required placeholder="e.g. Electronics">
+                </div>
+                <div class="form-group">
+                    <label>Cost Price (Rs.)</label>
+                    <input type="number" step="0.01" name="cost_price" required placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Selling Price (Rs.)</label>
+                    <input type="number" step="0.01" name="selling_price" required placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Initial Stock Count</label>
+                    <input type="number" name="stock" required placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label>Product Cover Image</label>
+                    <input type="file" name="image_file" accept="image/*">
+                </div>
+            </div>
+            <button type="submit" class="submit-btn">Publish Product Live</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Your Current Inventory Ledger</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Product Details</th>
+                    <th>Domain</th>
+                    <th>Cost Price</th>
+                    <th>Selling Price (Rs.)</th>
+                    <th>Available Stock</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td>
+                        <img src="{{ p['image_url'] }}" class="img-preview" alt="Product Image">
+                    </td>
+                    <td><strong>{{ p['name'] }}</strong></td>
+                    <td>{{ p['domain_category'] }}</td>
+                    <td>Rs. {{ p['cost_price'] }}</td>
+                    
+                    <form action="/vendor/update" method="POST">
+                        <input type="hidden" name="product_id" value="{{ p['product_id'] }}">
+                        <td>
+                            <input type="number" step="0.01" name="selling_price" class="inline-input" value="{{ p['selling_price'] }}">
+                        </td>
+                        <td>
+                            <input type="number" name="stock" class="inline-input" value="{{ p['stock'] }}">
+                        </td>
+                        <td>
+                            <button type="submit" class="update-btn">Update</button>
+                        </td>
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Your Sales History</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Bill ID</th>
+                    <th>Product Sold</th>
+                    <th>Quantity</th>
+                    <th>Price Sold (Rs.)</th>
+                    <th>Date & Time (IST)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in sales %}
+                <tr>
+                    <td><strong>#{{ s['order_id'] }}</strong></td>
+                    <td>{{ s['product_name'] }}</td>
+                    <td>{{ s['qty'] }}</td>
+                    <td>Rs. {{ s['price_sold'] }}</td>
+                    <td>{{ s['created_at'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
+ 

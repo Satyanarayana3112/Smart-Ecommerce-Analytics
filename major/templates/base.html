@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SmartEcommerceAnalytics</title>
+<style>
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+body { background-color: #f4f7f6; color: #333; }
+.navbar { background-color: #1a237e; color: white; padding: 15px 30px; display: flex;
+justify-content: space-between; align-items: center; }
+.navbar a { color: white; text-decoration: none; margin-left: 20px; font-weight: 500; }
+.container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+.card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px
+rgba(0,0,0,0.05); margin-bottom: 20px; }
+.btn { background-color: #ffab00; color: #1a237e; padding: 10px 15px; border: none;
+border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none; display:
+inline-block; }
+.btn-danger { background-color: #f44336; color: white; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+.form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius:
+4px; }
+table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+th { background-color: #f8f9fa; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:
+20px; }
+.product-img { width: 100%; height: 200px; object-fit: cover; border-radius: 4px;
+margin-bottom: 15px; }
+</style>
+</head>
+<body>
+<header class="navbar">
+<h2><a href="/" style="margin:0;">SmartEcommerceAnalytics</a></h2>
+<div>
+{% if session.get('user_id') %}
+<span style="color: #ffab00; margin-right: 15px;">{{ session.get('username') }} ({{
+session.get('role') | title }})</span>
+{% if session.get('role') == 'customer' %} <a href="/">Store</a> <a href="/cart">🛒
+Cart</a>
+{% elif session.get('role') == 'admin' %} <a href="/admin">Dashboard</a>
+{% elif session.get('role') == 'vendor' %} <a href="/vendor">Inventory</a> {% endif
+%}
+<a href="/logout" class="btn btn-danger" style="margin-left: 20px;">Logout</a>
+{% else %}
+<a href="/login">Login</a> <a href="/register">Register</a>
+{% endif %}
+</div>
+</header>
+<main class="container">{% block content %}{% endblock %}</main>
+</body>
+</html>

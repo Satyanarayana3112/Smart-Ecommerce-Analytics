@@ -1,0 +1,43 @@
+ {% extends 'base.html' %}
+{% block content %}
+<div class="card">
+    <h2>Shopping Cart</h2>
+    {% if items %}
+    <form action="/checkout" method="POST">
+        <table>
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Img</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in items %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="selected_products" value="{{ i.product_id }}" checked style="transform: scale(1.5);">
+                    </td>
+                    <td><img src="{{ i.image_url }}" style="width:50px; height:50px; object-fit:cover;"></td>
+                    <td>{{ i.name }}</td>
+                    <td>Rs. {{ "%.2f"|format(i.selling_price) }}</td>
+                    <td>{{ i.qty }}</td>
+                    <td><strong>Rs. {{ "%.2f"|format(i.subtotal) }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="text-align: right; margin-top: 30px;">
+            <button type="submit" class="btn" style="padding: 15px 30px; background-color: #4CAF50;">Checkout Selected Items</button>
+        </div>
+    </form>
+    {% else %} 
+    <p>Your cart is currently empty.</p> 
+    <a href="/" class="btn" style="margin-top: 15px; display: inline-block;">Continue Shopping</a>
+    {% endif %}
+</div>
+{% endblock %}
+
